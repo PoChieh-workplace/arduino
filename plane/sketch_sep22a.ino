@@ -35,6 +35,16 @@ void play(){
       digitalWrite(j,0);
     }
     delay(200);
+    for(int k=0;k<2;k++){
+      for(int j=10;j<14;j++){
+        digitalWrite(j,1);
+      }
+      delay(100);
+      for(int j=10;j<14;j++){
+        digitalWrite(j,0);
+      }
+      delay(50);
+    }
   }
 }
 void loop() {
@@ -48,5 +58,15 @@ void loop() {
 int state = digitalRead(A0);
   if(state == HIGH){
     play();
+    for(int k=0;k<3;k++){
+      for(int j=10;j<14;j++){
+        digitalWrite(j,1);
+      }
+      delay(1000);
+      for(int j=10;j<14;j++){
+        digitalWrite(j,0);
+      }
+      delay(500);
+    }
   }
 }
