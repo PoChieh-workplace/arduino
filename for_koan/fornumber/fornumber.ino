@@ -31,20 +31,24 @@ int a[4] ={0,0,0,0};
 int get1 =0;
 int get2 =0;
 void loop() {
-  if(get1 >=1){
-    a[1]+=2;
-    if(get1 >=30){
-      a[1]+=1;
+  if(digitalRead(A0)==0){
+    if(get1 >=1){
+      a[1]+=2;
+      if(get1 >=30){
+        a[1]+=1;
+      }
     }
+    get1=0;
   }
-  if(get2 >=1){
-    a[3]+=2;
-    if(get2 >=30){
-      a[3]+=1;
+  if(digitalRead(A1)==0){
+    if(get2 >=1){
+      a[3]+=2;
+      if(get2 >=30){
+        a[3]+=1;
+      }
     }
+    get2=0;
   }
-  get1=0;
-  get2=0;
   for(int i=0;i<2;i++){
     if(a[i*2+1]>9){
       a[i*2]+=1;
