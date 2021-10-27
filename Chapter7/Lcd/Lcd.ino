@@ -4,15 +4,16 @@
 
 LiquidCrystal_I2C lcd(0x27,16,2);
 void setup(){
+  Serial.begin(9600);
   lcd.init();
   lcd.backlight();
-  lcd.setCursor(0,0);
-  lcd.print("Hello Arduino!");
-  lcd.setCursor(5,1);
-  lcd.print(">WHSH<");
 }
 
-
 void loop(){
-  
+  if(Serial.available()>0){
+    lcd.clear();
+    while(Serial.available()>0){
+      lcd.write(Serial.read()/10);
+    }
+  }
 }
