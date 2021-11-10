@@ -71,15 +71,14 @@ int inputth[3] = {A0,A1,A2};
 
 
 void setup(){
+  pinMode(DS,OUTPUT);
+  pinMode(DT,OUTPUT);
+  pinMode(SH,OUTPUT); 
+  pinMode(vrx,INPUT);
+  pinMode(vry,INPUT);
+  pinMode(SW,INPUT);
   max7219(set_address,set_data);
   Serial.begin(9600);
-  set_second[4][4]=1;
-  for(int i =0;i<3;i++){
-    pinMode(inputth[i],INPUT);
-    pinMode(DS,OUTPUT);
-    pinMode(SH,OUTPUT);
-    pinMode(DT,OUTPUT);
-  }
 }
 
 void max7219(bool address[8][8],bool data[8][8]){
