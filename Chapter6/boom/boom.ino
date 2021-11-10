@@ -67,10 +67,19 @@ bool high_data[8][8]={
     {0,0,0,0,0,0,0,0}/*第8行數值*/
 };
 
+int inputth[3] = {A0,A1,A2};
+
+
 void setup(){
   max7219(set_address,set_data);
   Serial.begin(9600);
   set_second[4][4]=1;
+  for(int i =0;i<3;i++){
+    pinMode(inputth[i],INPUT);
+    pinMode(DS,OUTPUT);
+    pinMode(SH,OUTPUT);
+    pinMode(DT,OUTPUT);
+  }
 }
 
 void max7219(bool address[8][8],bool data[8][8]){
@@ -89,6 +98,7 @@ void max7219(bool address[8][8],bool data[8][8]){
         digitalWrite(DT, HIGH);//貨車出發
     }
 }
+
 int shownext(int i,int j){
   if(way==1 and i>0){
     return high_data[i-1][j];
