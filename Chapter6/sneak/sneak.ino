@@ -7,7 +7,7 @@ int vry = A2;
 int SW = A3;
 
 int way = 1;
-int level = 3;
+int level = 5;
 bool set_address[8][8]={//初始設定
     {0,0,0,0,1,1,0,0},/*開啟或關閉顯示器模組*/
     {0,0,0,0,1,0,0,1},/*選用原始碼或解碼模式*/
@@ -39,13 +39,13 @@ bool table_address[8][8]={
     {0,0,0,0,1,0,0,0}/*第8行地址*/
 };
 bool wen_data[8][8]={
-    {0,0,0,0,0,0,1,0},/*第1行數值*/
-    {1,0,0,0,1,1,1,0},/*第2行數值*/
-    {0,1,0,1,0,0,1,0},/*第3行數值*/
-    {0,0,1,0,0,0,1,1},/*第4行數值*/
-    {0,1,0,1,0,0,1,0},/*第5行數值*/
-    {1,0,0,0,1,1,1,0},/*第6行數值*/
-    {0,0,0,0,0,0,1,0},/*第7行數值*/
+    {0,0,0,0,0,0,0,0},/*第1行數值*/
+    {0,0,0,0,0,0,0,0},/*第2行數值*/
+    {0,0,0,0,0,0,0,0},/*第3行數值*/
+    {0,0,0,0,0,0,0,0},/*第4行數值*/
+    {0,0,0,0,0,0,0,0},/*第5行數值*/
+    {0,0,0,0,0,0,0,0},/*第6行數值*/
+    {0,0,0,0,0,0,0,0},/*第7行數值*/
     {0,0,0,0,0,0,0,0}/*第8行數值*/
 };
 
@@ -54,7 +54,7 @@ int set_second[8][8]={//初始設定
     {0,0,0,0,0,0,0,0},/*原始碼(0)解碼(1)模式*/
     {0,0,0,0,0,0,0,0},/*開啟(1)關閉(0)測試模式*/
     {0,0,0,0,0,0,0,0},/*設置初始亮度0*/
-    {0,0,0,0,level,0,0,0},/*8行LED全用*/
+    {0,0,0,0,0,0,0,0},/*8行LED全用*/
     {0,0,0,0,0,0,0,0},/*歸零*/
     {0,0,0,0,0,0,0,0},/*歸零糕*/
     {0,0,0,0,0,0,0,0}/*當歸鴨*/
@@ -83,10 +83,26 @@ void setup() {
     pinMode(SH,OUTPUT); 
     max7219(set_address,set_data);
     Serial.begin(9600);
-    
+}
+void setcurse(){
+  set_second[4][4]=level;
 }
 
-void setway(){
+void set_wen(){
+  for(int i=0;i<8;i++){
+    for(int j=0;j<8;j++){
+      Serial.print(wen_data[i][j]);
+    }
+    Serial.println('\n');
+  }
+  for(int i=0;i<8;i++){
+    for(int j=0;j<8;j++){
+      wen_data[i][j]=(set_second[i][j]==0?0:1);
+      set_second[i][j] = (set_second[i][j]==0?0:set_second[i][j]-1);
+    }
+  }
+}
+void getway(){
   int x = analogRead(vrx);
   int y = analogRead(vry);
   int btway = analogRead(SW);
@@ -110,18 +126,41 @@ void setway(){
     tmp=4;
   }
   way = (tmp==5-way?way:tmp);
-  Serial.println(way);
 }
 
 
+int nowx =4,nowy=4;
+void set_way(){
+  switch(way){
+    case 1:
+      nowx =(nowx==7?0:nowx+1);
+      break;
+    case 2:
+      nowy =(nowy==7?0:nowy+1);
+      break;
+    case 3:
+      nowy =(nowy==0?7:nowy-1);
+      break;
+    case 4:
+      nowx =(nowx==0?7:nowx-1);
+      break;
+  }
+  set_second[nowx][nowy] = level;
+}
 
 
-
-
-
-
+int endl =0;
 void loop() {
     max7219(table_address,wen_data);
-    setway();
-    delay(1000);
+    setcurse();
+    while(endl==0){
+      getway();
+      set_wen();
+      set_way();
+      max7219(table_address,wen_data);
+      delay(500);
+    }
+    if(analogRead(SW)>500){
+      endl=0;
+    }
 }
