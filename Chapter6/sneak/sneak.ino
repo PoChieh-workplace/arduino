@@ -6,8 +6,8 @@ int vrx = A1;
 int vry = A2;
 int SW = A3;
 
-int way = 1;
-int level = 5;
+int way = 4;
+int level = 3;
 bool set_address[8][8]={//初始設定
     {0,0,0,0,1,1,0,0},/*開啟或關閉顯示器模組*/
     {0,0,0,0,1,0,0,1},/*選用原始碼或解碼模式*/
@@ -113,23 +113,43 @@ void getway(){
   Serial.print("way = ");
   Serial.println(btway);*/
   int tmp = way;
-  if(x>700 && y<700 && y>300){
+  if(x>600 && y<600 && y>400){
     tmp=2;
   }
-  if(x<300 && y<700 && y>300){
+  if(x<400 && y<600 && y>400){
     tmp=3;
   }
-  if(x>300 && x<700 && y>700){
+  if(x>400 && x<600 && y>600){
     tmp=1;
   }
-  if(x>300 && x<700 && y<300){
+  if(x>400 && x<600 && y<400){
     tmp=4;
   }
   way = (tmp==5-way?way:tmp);
 }
 
+int showapple=0;
+void setapple(){
+  int x=random(8),y=random(8);
+  if(set_second[x][y]!=0){
+    setapple();
+  }
+  else{
+    set_second[x][y]=300;
+    showapple=1;
+  }
+}
 
 int nowx =4,nowy=4;
+void check(){
+  if(showapple==1){
+    if(set_second[nowx][nowy]>100){
+      level+=1;
+      showapple=0;
+    }
+  }
+}
+
 void set_way(){
   switch(way){
     case 1:
@@ -145,20 +165,33 @@ void set_way(){
       nowx =(nowx==0?7:nowx-1);
       break;
   }
+  check();
   set_second[nowx][nowy] = level;
 }
 
 
+
+
+
 int endl =0;
+
 void loop() {
     max7219(table_address,wen_data);
     setcurse();
     while(endl==0){
-      getway();
+      for(int i=0;i<5;i++){
+        getway();
+        delay(500/level);
+      }
       set_wen();
       set_way();
+      
+      if(showapple==0){
+        setapple();
+      }
+      
       max7219(table_address,wen_data);
-      delay(500);
+      
     }
     if(analogRead(SW)>500){
       endl=0;
