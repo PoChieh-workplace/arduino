@@ -152,16 +152,16 @@ void getway(){
   int y = analogRead(vry);
   int btway = analogRead(SW);
   int tmp = way;
-  if(x>600 && y<600 && y>400){
+  if(x>650){
     tmp=2;
   }
-  if(x<400 && y<600 && y>400){
+  if(x<350){
     tmp=3;
   }
-  if(x>400 && x<600 && y>600){
+  if(y>650){
     tmp=1;
   }
-  if(x>400 && x<600 && y<400){
+  if(y<350){
     tmp=4;
   }
   way = (tmp==5-way?way:tmp);
@@ -189,7 +189,18 @@ void set_way(){
 
 //===========流程===========
 void loop() {
+  way = 4;
+  level = 3;
+  nowx =4,nowy=4;
+  showapple=0;
+
+  
     max7219(table_address,wen_data);
+    for(int i=0;i<8;i++){
+      for(int j=0;j<8;j++){
+        set_second[i][j]=0;
+      }
+    }
     setcurse();
     while(endl==0){
       for(int i=0;i<5;i++){
@@ -204,22 +215,41 @@ void loop() {
       }
       max7219(table_address,wen_data);
     }
+
+    
     for(int i=0;i<8;i++){
       if(i%2==0){
         for(int j=0;j<8;j++){
-          wen_data[i][j]==1;
+          wen_data[i][j]=1;
           max7219(table_address,wen_data);
-          delay(10);
+          delay(20);
         }
       }
       else{
         for(int j=7;j>=0;j--){
-          wen_data[i][j]==1;
+          wen_data[i][j]=1;
           max7219(table_address,wen_data);
-          delay(10);
+          delay(20);
         }
       }
     }
+    for(int i=0;i<8;i++){
+      if(i%2==0){
+        for(int j=0;j<8;j++){
+          wen_data[i][j]=0;
+          max7219(table_address,wen_data);
+          delay(20);
+        }
+      }
+      else{
+        for(int j=7;j>=0;j--){
+          wen_data[i][j]=0;
+          max7219(table_address,wen_data);
+          delay(20);
+        }
+      }
+    }
+    
     while(endl==1){
       if(analogRead(SW)>500){
         endl=0;
