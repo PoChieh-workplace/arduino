@@ -61,15 +61,18 @@ int DS=2;
 int DT=3;
 int SH=4;
 
+
 //===========搖桿 pin角===========
 int vrx = A1;
 int vry = A2;
 int SW = A3;
 
+
 //===========蛇蛇 變數===========
 int way = 4;
 int level = 3;
 int nowx =4,nowy=4;
+
 
 
 //===========系統變數===========
@@ -104,7 +107,16 @@ void setup() {
 
 //===========開頭設置===========
 void setcurse(){
+  way = 4;
+  level = 3;
+  nowx =4,nowy=4;
+  showapple=0;
   set_second[4][4]=level;
+  for(int i=0;i<8;i++){
+      for(int j=0;j<8;j++){
+        set_second[i][j]=0;
+      }
+    }
 }
 
 
@@ -189,70 +201,64 @@ void set_way(){
 
 //===========流程===========
 void loop() {
-  way = 4;
-  level = 3;
-  nowx =4,nowy=4;
-  showapple=0;
-
+  long sneaktimer=millis();
+  long musictimer=millis();
   
+  max7219(table_address,wen_data);
+  setcurse();
+  while(endl==0){
+    for(int i=0;i<5;i++){
+      getway();
+      delay(500/level);
+    }
+    set_wen();
+    set_way();
+    
+    if(showapple==0){
+      setapple();
+    }
     max7219(table_address,wen_data);
-    for(int i=0;i<8;i++){
+  }
+  
+  //=======結束畫面=======
+  for(int i=0;i<8;i++){
+    if(i%2==0){
       for(int j=0;j<8;j++){
-        set_second[i][j]=0;
+        wen_data[i][j]=1;
+        max7219(table_address,wen_data);
+        delay(20);
       }
     }
-    setcurse();
-    while(endl==0){
-      for(int i=0;i<5;i++){
-        getway();
-        delay(500/level);
-      }
-      set_wen();
-      set_way();
-      
-      if(showapple==0){
-        setapple();
-      }
-      max7219(table_address,wen_data);
-    }
-
-    
-    for(int i=0;i<8;i++){
-      if(i%2==0){
-        for(int j=0;j<8;j++){
-          wen_data[i][j]=1;
-          max7219(table_address,wen_data);
-          delay(20);
-        }
-      }
-      else{
-        for(int j=7;j>=0;j--){
-          wen_data[i][j]=1;
-          max7219(table_address,wen_data);
-          delay(20);
-        }
+    else{
+      for(int j=7;j>=0;j--){
+        wen_data[i][j]=1;
+        max7219(table_address,wen_data);
+        delay(20);
       }
     }
-    for(int i=0;i<8;i++){
-      if(i%2==0){
-        for(int j=0;j<8;j++){
-          wen_data[i][j]=0;
-          max7219(table_address,wen_data);
-          delay(20);
-        }
-      }
-      else{
-        for(int j=7;j>=0;j--){
-          wen_data[i][j]=0;
-          max7219(table_address,wen_data);
-          delay(20);
-        }
+  }
+  for(int i=0;i<8;i++){
+    if(i%2==0){
+      for(int j=0;j<8;j++){
+        wen_data[i][j]=0;
+        max7219(table_address,wen_data);
+        delay(20);
       }
     }
-    
-    while(endl==1){
-      if(analogRead(SW)>500){
-        endl=0;
+    else{
+      for(int j=7;j>=0;j--){
+        wen_data[i][j]=0;
+        max7219(table_address,wen_data);
+        delay(20);
       }
     }
+  }
+  
+  
+  //=======重新開始=======
+  while(endl==1){
+    if(analogRead(SW)>500){
+      endl=0;
+    }
+  }
 }
