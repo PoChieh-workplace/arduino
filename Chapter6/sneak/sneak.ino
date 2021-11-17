@@ -159,27 +159,28 @@ void check(){
 
 
 //===========方位取得===========
-void getway(){
+int getway(int tmpway){
   int x = analogRead(vrx);
   int y = analogRead(vry);
   int btway = analogRead(SW);
-  int tmp = way;
+  int tmp = tmpway;
   if(x>650){
     tmp=2;
   }
-  if(x<350){
+  else if(x<300){
     tmp=3;
   }
-  if(y>650){
+  else if(y>650){
     tmp=1;
   }
-  if(y<350){
+  else if(y<300){
     tmp=4;
   }
-  way = (tmp==5-way?way:tmp);
+  return tmp;
 }
 
-void set_way(){
+void set_way(int tmp){
+  way = (tmp==5-way?way:tmp);
   switch(way){
     case 1:
       nowx =(nowx==7?0:nowx+1);
@@ -206,13 +207,14 @@ void loop() {
   
   max7219(table_address,wen_data);
   setcurse();
+  int tmpway=way;
   while(endl==0){
     for(int i=0;i<5;i++){
-      getway();
+      tmpway = getway(tmpway);
       delay(500/level);
     }
     set_wen();
-    set_way();
+    set_way(tmpway);
     
     if(showapple==0){
       setapple();
