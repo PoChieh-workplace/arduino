@@ -3,7 +3,7 @@
 LiquidCrystal_I2C lcd(0x27,16,2);
 short level=1;
 int point=0;
-
+int maxpoint=0;
 void lcd_light(){
   lcd.setCursor(0,0);
   lcd.print(String("level:")+level);
@@ -22,7 +22,7 @@ void lcd_setup(){
 
 int tick_time=1000;
 byte shape_idx[8][5] = {
-  0,0,1,1,0, 0,0,0,1,0, 1,1,1,0,1, 0,1,2,3,0, 0,1,2,3,0, 0,0,1,0,0, 0,0,1,1,0, 1,1,0,0,0,
+  0,0,1,1,0, 0,0,0,1,0, 1,1,1,0,1, 0,1,2,3,0, 0,1,2,3,0, 0,0,1,0,0, 0,0,1,1,0, 1,1,0,0,1,
 };
 byte shape_idy[8][5] = {
   0,1,0,1,0, 0,1,2,2,0, 0,1,2,2,0, 1,1,1,1,1, 1,1,1,1,1, 0,1,1,2,0, 0,1,1,2,0, 0,1,1,2,0,
@@ -169,29 +169,28 @@ void updata_boom_inf(){
   boom_x = analogRead(vrx);
   boom_y = analogRead(vry);
   boom_button = digitalRead(sw);
-  if(boom_x>768){
-    if(way == 0){
+  if(boom_y>768){
+    if(way != 1){
+      way=1;  /*左*/
+      block_move(1);
+    }
+  }
+  else if(boom_y<300){
+    if(way != 2){
+      way=2;  /*右*/
+      block_move(2);
+    }
+  }
+  else if(boom_x>768){
+    if(way != 4){
       way=4;  /*上*/
       turn_facing();
     }
   }
-  else if(boom_y>768){
-    if(way == 0){
-      way=1;  /*左*/
-      block_move(1);
-    }
-    
-  }
   else if(boom_x<256){
-    if(way == 0){
+    if(way != 3){
       way=3;
       tick_time=100;
-    }
-  }
-  else if(boom_y<256){
-    if(way == 0){
-      way=2;  /*右*/
-      block_move(2);
     }
   }
   else{
@@ -265,13 +264,9 @@ void turn_facing(){
 //方塊位移
 void block_move(byte side){
   if(side==2){
-    byte minj = 100;
     bool allow_move=true;
-    for(byte i=0;i<sizeof(block_i);i++){
-      minj = minj<block_j[i]?minj:block_j[i];
-    }
-    for(byte i=block_x;i<block_x+sizeof(block_i);i++){
-      if(work[i][minj-1]==1 || block_y+minj<1){
+    for(byte i=0;i<+sizeof(block_i);i++){
+      if(work[block_x+block_i[i]][block_y+block_j[i]-1]==1 || block_y+block_j[i]<1){
         allow_move=false;
       }
     }
@@ -288,8 +283,8 @@ void block_move(byte side){
     for(byte i=0;i<sizeof(block_i);i++){
       maxj = maxj>block_j[i]?maxj:block_j[i];
     }
-    for(byte i=block_x;i<block_x+sizeof(block_i);i++){
-      if(work[i][maxj+1]==1){
+    for(byte i=0;i<sizeof(block_i);i++){
+      if(work[block_x+block_i[i]][block_y+block_j[i]-1]==1 || block_y+block_j[i]>=7){
         allow_move=false;
       }
     }
@@ -390,6 +385,7 @@ void end_game(){
         delay(50);
         max7219(table_address,table_data);
       }
+      maxpoint = maxpoint<point?point:maxpoint;
       lcd_setup();
       _setup();
       game_start=0;
